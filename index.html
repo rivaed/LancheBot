@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sorteador</title>
+  <style>
+    :root {
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --container-bg: #fff;
+      --button-bg: #007BFF;
+      --button-color: #fff;
+    }
+    .dark-theme {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --container-bg: #1e1e1e;
+      --button-bg: #1e88e5;
+      --button-color: #fff;
+    }
+    body {
+      margin: 20px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: Arial, sans-serif;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      text-align: right;
+    }
+    main {
+      max-width: 600px;
+      margin: 20px auto;
+      background: var(--container-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    fieldset {
+      border: none;
+      margin-bottom: 15px;
+      padding: 0;
+    }
+    fieldset legend {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    label {
+      margin-right: 15px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 8px;
+      resize: vertical;
+      font-size: 1em;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: var(--button-color);
+      border: none;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.8em;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+    footer a {
+      text-decoration: none;
+      color: var(--text-color);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="toggle-theme" onclick="toggleTheme()">Tema Escuro</button>
+  </header>
+  <main>
+    <h1>Sorteador</h1>
+    <fieldset>
+      <legend>Modo de Entrada</legend>
+      <label>
+        <input type="radio" name="modo" value="exemplo" checked> Lista de Exemplo
+      </label>
+      <label>
+        <input type="radio" name="modo" value="personalizado"> Inserir Manualmente
+      </label>
+    </fieldset>
+    <textarea id="lista" placeholder="Insira os nomes aqui..."></textarea>
+    <div class="buttons">
+      <button id="sortearBtn">Sortear</button>
+    </div>
+    <div id="resultado" class="result"></div>
+  </main>
+  <footer>
+    <a href="#" id="privacidadeLink">Privacidade</a>
+  </footer>
+
+  <script defer>
+    'use strict';
+
+    // Lista de exemplo genérica
+    const LISTA_EXEMPLO = [
+      "Nome 1", "Nome 2", "Nome 3", "Nome 4", "Nome 5"
+    ];
+
+    function preencherLista() {
+      const modo = document.querySelector('input[name="modo"]:checked').value;
+      document.getElementById("lista").value = (modo === "exemplo") ? LISTA_EXEMPLO.join("\n") : "";
+    }
+
+    document.querySelectorAll('input[name="modo"]').forEach(radio => {
+      radio.addEventListener('change', preencherLista);
+    });
+
+    preencherLista();
+
+    function sortear() {
+      const modo = document.querySelector('input[name="modo"]:checked').value;
+      const texto = document.getElementById("lista").value;
+      let nomes = (modo === "exemplo") ? texto.split("\n") : texto.split(",");
+      nomes = nomes.map(n => n.trim()).filter(n => n);
+
+      if (nomes.length === 0) {
+        alert("A lista está vazia. Insira nomes válidos.");
+        return;
+      }
+
+      const ultimo = localStorage.getItem("ultimoSorteado");
+      let candidatos = nomes.filter(n => n !== ultimo);
+
+      if (candidatos.length === 0) {
+        candidatos = [...nomes];
+      }
+
+      const sorteado = candidatos[Math.floor(Math.random() * candidatos.length)];
+      localStorage.setItem("ultimoSorteado", sorteado);
+      document.getElementById("resultado").textContent = "Sorteado: " + sorteado;
+    }
+
+    document.getElementById("sortearBtn").addEventListener("click", sortear);
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-theme");
+      const btn = document.querySelector(".toggle-theme");
+      btn.textContent = document.body.classList.contains("dark-theme") ? "Tema Claro" : "Tema Escuro";
+    }
+
+    function mostrarPrivacidade(event) {
+      event.preventDefault();
+      alert(
+        "Privacidade:\n\nEste sistema não armazena dados pessoais permanentemente.\nUtilize por sua conta e risco.\nConsulte os termos antes de distribuir ou modificar."
+      );
+    }
+
+    document.getElementById("privacidadeLink").addEventListener("click", mostrarPrivacidade);
+  </script>
+</body>
+</html>
